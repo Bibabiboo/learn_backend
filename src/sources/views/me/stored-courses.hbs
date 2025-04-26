@@ -1,0 +1,34 @@
+<div class='mt-4'>
+
+    <div class='container'>
+        <h3>My Courses</h3>
+
+        <table class='table'>
+            <thead>
+                <tr>
+                    <th scope='col'>AutoNumber</th>
+                    <th scope='col'>Name of Course</th>
+                    <th scope='col'>Description</th>
+                    <th scope='col'>Date Created</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class='mt-4'>
+                {{#each courses}}
+                    <tr>
+                        <th scope='row'>{{sum @index 1}}</th>
+                        <td>{{this.name}}</td>
+                        <td>{{this.description}}</td>
+                        <td>{{this.createdAt}}</td>
+
+                        <td>
+                            <a href='/courses/{{this._id}}/edit' class='btn btn-link'>Edit</a>
+                            <a href='/courses/{{this._id}}/edit' class='btn btn-link'>Delete</a>
+                        </td>
+                    </tr>
+
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>

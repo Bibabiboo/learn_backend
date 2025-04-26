@@ -1,5 +1,9 @@
 @import 'variable';
 
 h1 {
-    color: $red-color;
+    color: $green-color;
+}
+
+.navbar-nav {
+    margin-left: auto;
 }
