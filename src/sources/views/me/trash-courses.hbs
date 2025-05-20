@@ -1,9 +1,8 @@
 <div class="mt-4">
     <div class="container">
         <div>
-            <h3>My Courses</h3>
-
-            <a href="/me/trash/courses"><i class="fa-solid fa-trash"></i> ({{documentsDeleted}})</a>
+            <a href="/me/stored/courses">List of Courses</a>
+            <h3>Deleted Courses</h3>
         </div>
 
         <table class="table">
@@ -25,14 +24,16 @@
                     <td>{{this.createdAt}}</td>
 
                     <td>
-                        <a href="/courses/{{this._id}}/edit" class="btn btn-link">Edit</a>
+                        <a href="" class="btn btn-link btn-restore" data-id="{{this._id}}"
+                            >Restore</a
+                        >
                         <a
                             href=""
-                            class="btn btn-link"
+                            class="btn btn-link btn-force-delete"
                             data-toggle="modal"
                             data-target="#delete-course-modal"
                             data-id="{{this._id}}"
-                            >Delete</a
+                            >Force Delete</a
                         >
                     </td>
                 </tr>
@@ -40,8 +41,8 @@
                 {{else}}
                 <tr>
                     <td colspan="4" class="text-center">
-                        Nothing Coures are posted.
-                        <a href="/courses/create">Let's post course!</a>
+                        Nothing Coures are deleted.
+                        <a href="/me/stored/courses">List of Courses</a>
                     </td>
                 </tr>
 
@@ -51,7 +52,7 @@
     </div>
 </div>
 
-{{! CONFIRM DELETE COURSE}}
+{{! CONFIRM FORCE DELETE COURSE}}
 <div class="modal fade" id="delete-course-modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -61,23 +62,27 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">Do you wanna delete this course?</div>
+            <div class="modal-body">Action can restore. Do you wanna force delete this course?</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="btn-delete-course" type="button" class="btn btn-danger">Delete</button>
+                <button id="btn-delete-course" type="button" class="btn btn-danger">
+                    Force Delete
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-{{!-- DELETE HIDDEN FORM TO MAKE METHOD DELETE --}}
 <form name="delete-course-form" method="POST"></form>
+<form name="restore-course-form" method="POST"></form>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var btnDeleteCourse = document.getElementById('btn-delete-course');
         var courseId;
         var deleteForm = document.forms['delete-course-form'];
+        var restoreForm = document.forms['restore-course-form'];
+        var btnRestore = $('.btn-restore'); // get all elements
 
         //when dialog confirm clicked to get id
         $('#delete-course-modal').on('show.bs.modal', function (event) {
@@ -86,9 +91,19 @@
         });
 
         //when btn delete course confirm clicked and take id from dialog to delete course
-        btnDeleteCourse.onclick = function () {
+        btnDeleteCourse.onclick = function (e) {
             deleteForm.action = `/courses/${courseId}?_method=DELETE`;
             deleteForm.submit();
         };
+
+        // click restore course
+        btnRestore.click(function (event) {
+            var courseId = $(this).data('id');
+
+            event.preventDefault();
+
+            restoreForm.action = `/courses/${courseId}/restore?_method=PATCH`;
+            restoreForm.submit();
+        });
     });
 </script>

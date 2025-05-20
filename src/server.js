@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const handlebars = require('express-handlebars');
 const methodOverride = require('method-override');
+const $ = require('jquery');
 
 const route = require('./routes');
 const database = require('./config/db/connect');
