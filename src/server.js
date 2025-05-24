@@ -7,6 +7,7 @@ const $ = require('jquery');
 
 const route = require('./routes');
 const database = require('./config/db/connect');
+const SortMiddleware = require('./app/SortMiddlewares/SortMiddlewares');
 
 const app = express();
 const port = 3000;
@@ -30,14 +31,40 @@ app.engine(
         extname: '.hbs',
         helpers: {
             sum: (a, b) => a + b,
+
+            //sort = req.query
+            sortable: (field, sort) => {
+                const sortTypes = field === sort.column ? sort.type : 'default';
+                const icons = {
+                    default: 'fa-solid fa-sort',
+                    asc: 'fa-solid fa-arrow-down-short-wide',
+                    desc: 'fa-solid fa-arrow-down-wide-short',
+                };
+
+                const types = {
+                    default: 'desc',
+                    desc: 'asc',
+                    asc: 'desc',
+                };
+
+                const icon = icons[sortTypes];
+                const type = types[sortTypes];
+
+                return `<a href="?_sort&column=${field}&type=${type}">
+                            <i class="${icon}"></i>
+                        </a>`;
+            },
         },
     }),
 );
+
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, './sources/views'));
 
 // methodOverride: middleware để sử dụng method khác như (PUT, DELETE,...)
 app.use(methodOverride('_method'));
+// Sort Middleware
+app.use(SortMiddleware);
 
 // Routes init
 route(app);

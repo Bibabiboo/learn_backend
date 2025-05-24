@@ -21,6 +21,7 @@ class CourseController {
         const formData = req.body;
         formData.img = `https://img.youtube.com/vi/${formData.videoId}/0.jpg`;
         const course = new Course(formData);
+
         course
             .save()
             .then(() => {
@@ -52,10 +53,11 @@ class CourseController {
 
     // [DELETE] courses/:id/force
     forceDelete(req, res, next) {
-        Course.delete({ _id: req.params.id })
+        Course.deleteOne({ _id: req.params.id })
             .then(() => res.redirect('/me/trash/courses'))
             .catch((error) => next(error));
     }
+
     // [PATCH] courses/:id/restore
     restore(req, res, next) {
         Course.restore({ _id: req.params.id })
@@ -64,6 +66,41 @@ class CourseController {
                 return Course.updateOne({ _id: req.params.id }, { deleted: false });
             })
             .catch((error) => next(error));
+    }
+
+    // [POST] courses/handle-form-action
+    handleFormActions(req, res, next) {
+        switch (req.body.action) {
+            case 'delete':
+                Course.delete({ _id: { $in: req.body.courseIds } })
+                    .then(() => res.redirect('/me/stored/courses'))
+                    .catch((error) => next(error));
+
+                break;
+            default:
+                res.json({ message: 'Action invalid' });
+        }
+    }
+
+    // [POST] courses/handle-form-action
+    handleFormActionsTrash(req, res, next) {
+        switch (req.body.action) {
+            case 'forceDelete':
+                Course.deleteMany({ _id: { $in: req.body.courseIds } })
+                    .then(() => res.redirect('/me/trash/courses'))
+                    .catch((error) => next(error));
+
+            case 'restore':
+                Course.restore({ _id: { $in: req.body.courseIds } })
+                    .then(() => res.redirect('/me/trash/courses'))
+                    .then(() => {
+                        return Course.updateMany({ _id: { $in: req.body.courseIds } }, { deleted: false });
+                    })
+                    .catch((error) => next(error));
+                break;
+            default:
+                res.json({ message: 'Action invalid' });
+        }
     }
 }
 

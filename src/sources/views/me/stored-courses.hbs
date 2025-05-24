@@ -1,24 +1,50 @@
-<div class="mt-4">
-    <div class="container">
+<form name="container-form" class="mt-4" method="POST" action="/courses/stored/handle-form-actions">
+    <div class="">
         <div>
             <h3>My Courses</h3>
 
             <a href="/me/trash/courses"><i class="fa-solid fa-trash"></i> ({{documentsDeleted}})</a>
+
+            <div class="d-flex align-items-center mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="checkbox-all" />
+                    <label class="form-check-label" for="checkbox-all"> Select all</label>
+                </div>
+
+                <select class="form-control form-control-sm checkbox-all-courses ml-2" name="action" required>
+                    <option value="">-- Chọn hành động --</option>
+                    <option value="delete">Xóa khóa học</option>
+                </select>
+
+                <button class="btn btn-primary ml-2 btn-submit-checkbox" disabled>Thực hiện</button>
+            </div>
         </div>
 
         <table class="table">
             <thead>
                 <tr>
+                    <th scope="col">Select</th>
                     <th scope="col">AutoNumber</th>
-                    <th scope="col">Name of Course</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Date Created</th>
+                    <th scope="col">Name of Course {{{sortable 'name' _sort}}}</th>
+                    <th scope="col">Description {{{sortable 'description' _sort}}}</th>
+                    <th scope="col">Date Created {{{sortable 'createdAt' _sort}}}</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody class="mt-4">
                 {{#each courses}}
                 <tr>
+                    <td>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                value="{{this._id}}"
+                                id="defaultCheck1"
+                                name="courseIds"
+                            />
+                        </div>
+                    </td>
                     <th scope="row">{{sum @index 1}}</th>
                     <td>{{this.name}}</td>
                     <td>{{this.description}}</td>
@@ -49,7 +75,7 @@
             </tbody>
         </table>
     </div>
-</div>
+</form>
 
 {{! CONFIRM DELETE COURSE}}
 <div class="modal fade" id="delete-course-modal" tabindex="-1" aria-hidden="true">
@@ -79,6 +105,11 @@
         var courseId;
         var deleteForm = document.forms['delete-course-form'];
 
+        var checkboxAll = $('#checkbox-all');
+        var courseItemCheckbox = $('input[name="courseIds"]');
+        var btnSubmitCheckbox = $('.btn-submit-checkbox');
+        var containerForm = document.forms['container-form'];
+
         //when dialog confirm clicked to get id
         $('#delete-course-modal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
@@ -90,5 +121,26 @@
             deleteForm.action = `/courses/${courseId}?_method=DELETE`;
             deleteForm.submit();
         };
+
+        // action select all to delete
+        checkboxAll.change(function () {
+            var isCheckedAll = $(this).prop('checked');
+            courseItemCheckbox.prop('checked', isCheckedAll);
+            enableCheckboxSubmitBtn();
+        });
+
+        // action course items change
+        courseItemCheckbox.change(function () {
+            var isCheckedAll = courseItemCheckbox.length === $('input[name="courseIds"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+            enableCheckboxSubmitBtn();
+        });
+
+        function enableCheckboxSubmitBtn() {
+            var checkedCount = $('input[name="courseIds"]:checked').length;
+            if (checkedCount > 0) {
+                btnSubmitCheckbox.removeAttr('disabled');
+            }
+        }
     });
 </script>
