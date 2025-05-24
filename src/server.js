@@ -30,8 +30,6 @@ app.engine(
     handlebars.engine({
         extname: '.hbs',
         helpers: {
-            sum: (a, b) => a + b,
-
             //sort = req.query
             sortable: (field, sort) => {
                 const sortTypes = field === sort.column ? sort.type : 'default';
